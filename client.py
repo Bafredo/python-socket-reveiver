@@ -4,14 +4,15 @@ import struct
 import pickle
 
 # Specify the IP address and port for the Android client
-server_address = '192.168.102.193'  # Replace with your Android device's IP address
+server_address = '192.168.1.108'  # Replace with your Android device's IP address
 server_port = 9000  # Port to use for streaming
 
 # Create a socket
-s = socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((server_address, server_port))
 s.listen()
-con,addr = s.accept()
+conn,add = s.accept()
+
 # Open the webcam
 cap = cv2.VideoCapture(0)
 
@@ -33,15 +34,15 @@ try:
         # Encode the frame as a JPEG to compress it
         result, frame_encoded = cv2.imencode('.jpg', frame, encode_param)
 
-        # Serialize the frame using pickle
-        frame_data = pickle.dumps(frame_encoded, 0)
+        # Convert the frame to bytes and send
+        frame_data = frame_encoded.tobytes()
 
         # Send the length of the data (4 bytes) followed by the frame itself
         frame_size = struct.pack(">L", len(frame_data))
-        con.sendall(frame_size + frame_data)
-
+        conn.sendall(frame_size + frame_data)
+        print(frame_data)
 finally:
     # Release the camera and close the socket
     cap.release()
-    con.close()
+    conn.close()
     print("Connection closed")
